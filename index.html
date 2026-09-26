@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>TYRANO CHEATSHEET STUDIO</title>
-  <script type="module" crossorigin src="./assets/index-jHPNOxqu.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DJHJEYnl.css">
+  <script type="module" crossorigin src="./assets/index-C0truQv6.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CzMyzCJP.css">
 </head>
 <body>
 <div class="app">
@@ -25,9 +25,15 @@
       <button class="mode-btn" data-mode="title">🏠 タイトル画面</button>
       <button class="mode-btn" data-mode="extra">🖼 CG・おまけ</button>
     </nav>
-    <div class="history-actions" aria-label="編集履歴">
-      <button id="undoProject" class="history-button" aria-label="元に戻す" title="元に戻す（Ctrl/⌘+Z）" disabled>↶</button>
-      <button id="redoProject" class="history-button" aria-label="やり直す" title="やり直す（Ctrl/⌘+Shift+Z）" disabled>↷</button>
+    <div class="header-actions">
+      <div class="history-actions" aria-label="編集履歴">
+        <button id="undoProject" class="history-button" aria-label="元に戻す" title="元に戻す（Ctrl/⌘+Z）" disabled>↶</button>
+        <button id="redoProject" class="history-button" aria-label="やり直す" title="やり直す（Ctrl/⌘+Shift+Z）" disabled>↷</button>
+      </div>
+      <nav class="info-actions" aria-label="使い方とお知らせ">
+        <button type="button" class="info-button" data-info-dialog="helpDialog" aria-haspopup="dialog" aria-controls="helpDialog">ヘルプ</button>
+        <button type="button" class="info-button" data-info-dialog="changelogDialog" aria-haspopup="dialog" aria-controls="changelogDialog">更新履歴</button>
+      </nav>
     </div>
   </header>
   <div id="storageProblem" class="storage-problem" role="alert" hidden>
@@ -471,5 +477,75 @@
 </div>
 
 <div id="toast" class="toast" role="status"></div>
+<dialog id="helpDialog" class="info-dialog" aria-labelledby="helpHeading">
+  <div class="info-dialog-heading">
+    <h2 id="helpHeading">ヘルプ</h2>
+    <form method="dialog"><button class="info-button" autofocus>閉じる</button></form>
+  </div>
+  <div class="info-dialog-body">
+    <p class="info-lead">画面を選んで、配置を編集し、コードをコピー。</p>
+    <section>
+      <h3>はじめて使うとき</h3>
+      <ol>
+        <li>上部のボタンから使いたいモードを選びます。</li>
+        <li>文字や画像を設定し、プレビューで要素をドラッグして配置します。位置・サイズの数値からも調整できます。</li>
+        <li>必要な生成コードの「コピー」を押し、制作中のシナリオへ貼り付けます。</li>
+      </ol>
+    </section>
+    <section>
+      <h3>6つのモード</h3>
+      <dl class="help-modes">
+        <dt>タグ辞典</dt><dd>126件のタグを検索し、説明とコードを確認できます。</dd>
+        <dt>レシピ</dt><dd>25件の処理例から、使いたいコードを探せます。</dd>
+        <dt>選択肢ビルダー</dt><dd>選択肢の文字・色・位置やジャンプ先を編集します。</dd>
+        <dt>画面レイアウト</dt><dd>背景・立ち絵を配置し、位置・倍率・反転を調整します。</dd>
+        <dt>タイトル画面</dt><dd>テンプレートから文字・画像・ボタンを配置し、通常／ホバー画像を設定できます。</dd>
+        <dt>CG・おまけ</dt><dd>CG一覧などの配置とサムネイルを編集します。ページ送りやゲーム内の解放連携は未完成です。</dd>
+      </dl>
+    </section>
+    <section>
+      <h3>画像と自動保存</h3>
+      <p>PNG・JPEG・WebPに対応しています。画像と配置は、このブラウザに自動保存されます。上部の「保存済み」を確認してから閉じてください。画像や編集データをサーバーへ送信する機能はありません。</p>
+      <p>同じブラウザ・同じサイトで開くと続きを編集できます。別の端末やローカル版のデータは自動移行されません。ブラウザのサイトデータを削除すると保存内容も消えます。ZIP入出力・端末間同期はありません。</p>
+    </section>
+    <section>
+      <h3>操作のヒント</h3>
+      <ul>
+        <li>元に戻す：<kbd>Ctrl / ⌘</kbd> + <kbd>Z</kbd>。やり直す：<kbd>Ctrl / ⌘</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd>。</li>
+        <li>タイトル画面ではShiftを押しながら要素を選ぶと、まとめて移動・整列できます。</li>
+        <li>この案内は「閉じる」か<kbd>Esc</kbd>で閉じられます。</li>
+      </ul>
+    </section>
+    <section>
+      <h3>生成コードについて</h3>
+      <p>現在は開発版です。生成コード・辞典・レシピはティラノ実機で未検証のため、導入先で動作を確認してください。画面ごとの出力検証や注意事項も確認できます。条件式はエディタ内で実行しません。</p>
+    </section>
+  </div>
+</dialog>
+<dialog id="changelogDialog" class="info-dialog" aria-labelledby="changelogHeading">
+  <div class="info-dialog-heading">
+    <h2 id="changelogHeading">更新履歴</h2>
+    <form method="dialog"><button class="info-button" autofocus>閉じる</button></form>
+  </div>
+  <div class="info-dialog-body">
+    <section class="release-entry">
+      <div class="release-meta"><h3>0.1.1</h3><span class="badge">最新</span><time datetime="2026-09-26">2026年9月26日</time></div>
+      <ul>
+        <li>右上に「ヘルプ」「更新履歴」ボタンを追加しました。</li>
+        <li>編集画面の中で使い方・保存の説明と更新内容を読めるようになりました。</li>
+      </ul>
+    </section>
+    <section class="release-entry">
+      <div class="release-meta"><h3>0.1.0</h3><time datetime="2026-09-26">2026年9月26日</time></div>
+      <ul>
+        <li>GitHub Pagesで初回公開しました。</li>
+        <li>6モード、126タグ、25レシピを搭載しました。</li>
+        <li>画像・配置の自動保存、Undo/Redo、ホバー画像、ドラッグ、コードコピーに対応しました。</li>
+        <li>タイトル画面に素材の再利用、複数選択・整列、サイズ変更、テンプレートを用意しました。</li>
+        <li>プロジェクト管理欄とZIP入出力を省き、編集中心の画面に整理しました。</li>
+      </ul>
+    </section>
+  </div>
+</dialog>
 </body>
 </html>
