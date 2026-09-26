@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TYRANO CHEATSHEET STUDIO</title>
+  <script type="module" crossorigin src="./assets/index-jHPNOxqu.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DJHJEYnl.css">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brandbox">
+      <div class="logo">T</div>
+      <div>
+        <div class="brand">TYRANO CHEATSHEET STUDIO</div>
+        <div class="sub">このブラウザに自動保存 <span id="saveStatus" role="status">起動中</span></div>
+      </div>
+    </div>
+    <nav class="mode-nav" id="modeNav">
+      <button class="mode-btn active" data-mode="reference">🔍 タグ辞典</button>
+      <button class="mode-btn" data-mode="recipes">📖 レシピ</button>
+      <button class="mode-btn" data-mode="glink">🖱 選択肢ビルダー</button>
+      <button class="mode-btn" data-mode="layout">📐 画面レイアウト</button>
+      <button class="mode-btn" data-mode="title">🏠 タイトル画面</button>
+      <button class="mode-btn" data-mode="extra">🖼 CG・おまけ</button>
+    </nav>
+    <div class="history-actions" aria-label="編集履歴">
+      <button id="undoProject" class="history-button" aria-label="元に戻す" title="元に戻す（Ctrl/⌘+Z）" disabled>↶</button>
+      <button id="redoProject" class="history-button" aria-label="やり直す" title="やり直す（Ctrl/⌘+Shift+Z）" disabled>↷</button>
+    </div>
+  </header>
+  <div id="storageProblem" class="storage-problem" role="alert" hidden>
+    <p id="storageProblemText"></p>
+    <div class="storage-actions">
+      <button id="retrySave" class="soft-btn">保存を再試行</button>
+      <button id="reloadSaved" class="soft-btn">保存データを読み直す</button>
+      <button id="recoverProject" class="soft-btn">前回の保存に戻す</button>
+    </div>
+  </div>
+  <div id="notifications" role="alert" aria-live="polite"></div>
+
+  <main id="referenceMode" class="mode-view">
+    <section class="searchbar-wrap">
+      <div class="searchbox">
+        <span>🔍</span>
+        <input id="searchInput" placeholder="何がしたい？ 例：表情差分 / BGMフェード / 名前入力">
+        <button id="clearSearch">×</button>
+      </div>
+      <label class="search-scope">検索範囲<select id="searchScope"><option value="all">すべてのタグ</option><option value="category">このカテゴリ</option></select></label>
+      <button id="showFav" class="small-btn">★ お気に入り</button>
+    </section>
+    <div class="reference-grid">
+      <aside class="panel sidebar">
+        <div class="panel-title">カテゴリ</div>
+        <div id="categoryList" class="stack gap6"></div>
+        <div class="divider"></div>
+        <div class="panel-title small">🕘 最近見た</div>
+        <div id="recentList" class="stack gap4"></div>
+      </aside>
+      <section class="panel list-panel">
+        <div class="panel-head">
+          <div><strong id="tagListTitle">タグ</strong><span id="tagCount" class="muted"></span></div>
+        </div>
+        <div id="tagList" class="scroll-body"></div>
+      </section>
+      <section id="tagDetail" class="panel detail-panel"></section>
+    </div>
+  </main>
+
+  <main id="recipesMode" class="mode-view hidden">
+    <div class="wide-page">
+      <section class="panel recipe-panel">
+        <div class="page-head">
+          <div><h1>📖 レシピ集</h1><p>やりたい処理から、そのままコピペ。</p></div>
+          <div id="recipeCats" class="pill-row"></div>
+        </div>
+        <div id="recipeGrid" class="recipe-grid"></div>
+      </section>
+      <section id="recipeDetail" class="panel recipe-detail-side">
+        <div class="empty"><div class="empty-icon">📖</div><h2>レシピを選択</h2><p>左のカードから開くと、コピペ用コードを表示します。</p></div>
+      </section>
+    </div>
+  </main>
+
+  <main id="glinkMode" class="mode-view hidden">
+    <div class="tool-page">
+      <section class="panel tool-controls">
+        <div class="page-head compact">
+          <div><h1>🖱 選択肢ビルダー</h1><p>グラフィカルリンクを見ながら配置。</p></div>
+        </div>
+
+        <div class="control-section">
+          <div class="section-title">ゲーム画面</div>
+          <div class="two-col">
+            <label>幅<input id="glGameW" type="number" min="320" value="1280"></label>
+            <label>高さ<input id="glGameH" type="number" min="240" value="720"></label>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <div class="section-title row-between">選択肢 <button id="addChoice" class="mini-primary">＋追加</button></div>
+          <div id="choiceList" class="choice-list"></div>
+        </div>
+
+        <div class="control-section">
+          <div class="section-title">選択中のボタン</div>
+          <div class="form-grid">
+            <label class="span2">表示テキスト<input id="glText" type="text"></label>
+            <label class="span2">ジャンプ先<input id="glTarget" type="text"></label>
+            <label>X<input id="glX" type="number"></label>
+            <label>Y<input id="glY" type="number"></label>
+            <label>幅<input id="glW" type="number" min="20"></label>
+            <label>高さ<input id="glH" type="number" min="20"></label>
+            <label>文字サイズ<input id="glSize" type="number" min="8"></label>
+            <label>色
+              <select id="glColor">
+                <option>black</option><option>gray</option><option>white</option>
+                <option>orange</option><option>red</option><option>blue</option>
+                <option>rosy</option><option>green</option><option>pink</option>
+                <option>btn_13_red</option>
+              </select>
+            </label>
+            <label>文字色<input id="glFontColor" type="color" value="#ffffff"></label>
+            <label>不透明度<input id="glOpacity" type="number" min="0" max="255" value="255"></label>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <div class="section-title">並べ方プリセット</div>
+          <div class="preset-grid">
+            <button data-preset="vertical">縦・中央</button>
+            <button data-preset="bottom">下部・中央</button>
+            <button data-preset="horizontal">横並び</button>
+            <button data-preset="spread">均等配置</button>
+          </div>
+          <label class="checkline"><input id="includeStop" type="checkbox" checked> 最後に [s] を付ける</label>
+        </div>
+      </section>
+
+      <section class="panel preview-panel">
+        <div class="preview-head">
+          <div><strong>プレビュー</strong><span class="muted">ドラッグで移動できます</span></div>
+          <div id="glScaleReadout" class="badge"></div>
+        </div>
+        <div class="stage-wrap">
+          <div id="glStage" class="game-stage checker"></div>
+        </div>
+        <div class="generated-area">
+          <div class="section-title row-between"><span>生成コード</span><button class="copy-button" data-copy="#glCode">📋 コピー</button></div>
+          <pre id="glCode" class="codebox"></pre>
+          <div class="note">V6公式の <code>[glink]</code> で確認できる text / target / x / y / width / height / size / color / font_color / opacity を出力します。</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <main id="layoutMode" class="mode-view hidden">
+    <div class="tool-page layout-page">
+      <section class="panel tool-controls">
+        <div class="page-head compact">
+          <div><h1>📐 画面レイアウト</h1><p>背景と立ち絵のサイズ感を実寸比率で確認。</p></div>
+        </div>
+
+        <div class="control-section">
+          <div class="section-title">ゲーム画面</div>
+          <div class="two-col">
+            <label>幅<input id="lyGameW" type="number" min="320" value="1280"></label>
+            <label>高さ<input id="lyGameH" type="number" min="240" value="720"></label>
+          </div>
+          <div class="preset-grid three">
+            <button class="screen-preset" data-w="1280" data-h="720">1280×720</button>
+            <button class="screen-preset" data-w="960" data-h="540">960×540</button>
+            <button class="screen-preset" data-w="1920" data-h="1080">1920×1080</button>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <div class="section-title">背景</div>
+          <label class="file-btn">🖼 背景画像を選択<input id="bgInput" type="file" accept="image/*"></label>
+          <button id="clearBg" class="soft-btn">背景を外す</button>
+        </div>
+
+        <div class="control-section">
+          <div class="section-title row-between">立ち絵 <label class="mini-primary file-inline">＋追加<input id="charInput" type="file" accept="image/*" multiple></label></div>
+          <div id="charList" class="choice-list"></div>
+        </div>
+
+        <div id="charControls" class="control-section">
+          <div class="section-title">選択中の立ち絵</div>
+          <div class="form-grid">
+            <label class="span2">名前<input id="lyName" type="text"></label>
+            <label>X<input id="lyX" type="number"></label>
+            <label>Y<input id="lyY" type="number"></label>
+            <label>表示幅<input id="lyW" type="number" min="1"></label>
+            <label>表示高<input id="lyH" type="number" min="1"></label>
+            <label>倍率 %<input id="lyScale" type="number" min="1" max="500"></label>
+            <label>身長 cm<input id="lyCm" type="number" min="1" placeholder="任意"></label>
+          </div>
+          <div class="preset-grid">
+            <button data-fit="height100">高さ100%</button>
+            <button data-fit="height90">高さ90%</button>
+            <button data-fit="center">中央</button>
+            <button data-fit="bottom">足元揃え</button>
+          </div>
+          <label class="checkline"><input id="lyReflect" type="checkbox"> 左右反転</label>
+          <button id="removeChar" class="danger-soft">選択中を削除</button>
+        </div>
+
+        <div class="control-section">
+          <div class="section-title">身長比プリセット</div>
+          <p class="small-note">複数立ち絵に「身長cm」を入れて、基準キャラの表示高に合わせて比率調整します。</p>
+          <button id="applyHeightRatio" class="soft-btn">選択中を基準に身長比を反映</button>
+        </div>
+      </section>
+
+      <section class="panel preview-panel">
+        <div class="preview-head">
+          <div><strong>ゲーム画面</strong><span class="muted">立ち絵をドラッグして配置</span></div>
+          <div id="lyScaleReadout" class="badge"></div>
+        </div>
+        <div class="stage-wrap">
+          <div id="lyStage" class="game-stage layout-stage checker">
+            <div class="message-guide">メッセージウィンドウ目安</div>
+          </div>
+        </div>
+        <div id="layoutStats" class="stats-grid"></div>
+        <div class="generated-area">
+          <div class="section-title row-between"><span>選択中の配置コード</span><button class="copy-button" data-copy="#lyCode">📋 コピー</button></div>
+          <pre id="lyCode" class="codebox"></pre>
+          <div class="note">立ち絵は <code>[chara_new]</code> で登録済みとして、V6公式の <code>[chara_show]</code> の width / height / left / top / reflect を出力します。</div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <main id="titleMode" class="mode-view hidden">
+    <div class="ui-builder-page">
+      <section class="panel ui-left">
+        <div class="page-head compact">
+          <div><h1>🏠 タイトル画面ビルダー</h1><p>テンプレから始めて、画像・文字・ボタンをドラッグ配置。</p></div>
+        </div>
+
+        <div class="control-section">
+          <div class="section-title">テンプレ</div>
+          <div class="template-grid">
+            <button data-title-template="leftMenu">左メニュー＋右ビジュアル</button>
+            <button data-title-template="center">中央ロゴ＋下メニュー</button>
+            <button data-title-template="rightMenu">左ビジュアル＋右メニュー</button>
+            <button data-title-template="minimal">シンプル中央</button>
+          </div>
+          <label class="small-note"><input id="titleTemplateReplace" type="checkbox"> 初期要素に置き換える（確認後に適用）</label>
+          <p class="small-note">通常は画像と動作を残して、現在の画面サイズに合わせて再配置します。</p>
+        </div>
+
+        <div class="control-section">
+          <div class="section-title">画面</div>
+          <div class="two-col">
+            <label>幅<input id="titleGameW" type="number" min="320" value="1280"></label>
+            <label>高さ<input id="titleGameH" type="number" min="240" value="720"></label>
+          </div>
+          <label class="file-btn">🖼 背景画像<input id="titleBgInput" type="file" accept="image/*"></label>
+          <button id="titleClearBg" class="soft-btn">背景を外す</button>
+        </div>
+
+        <div class="control-section">
+          <div class="section-title row-between">
+            <span>要素</span>
+            <div class="inline-actions">
+              <button id="titleAddText" class="mini-primary">＋文字</button>
+              <label class="mini-primary file-inline">＋画像<input id="titleAddImage" type="file" accept="image/*"></label>
+              <button id="titleAddButton" class="mini-primary">＋ボタン</button>
+            </div>
+          </div>
+          <div id="titleElementList" class="choice-list"></div>
+          <p id="titleSelectionStatus" class="small-note"></p>
+          <div class="inline-actions"><button id="titleSelectAll" class="soft-btn">全選択</button><button id="titleClearSelection" class="soft-btn">選択解除</button></div>
+        </div>
+
+        <div class="control-section" id="titleInspector">
+          <div class="section-title">選択中の要素</div>
+          <div class="form-grid">
+            <label class="span2">名前<input id="titleName" type="text"></label>
+            <label class="span2">要素の種類<select id="titlePurpose"><option value="logo">ロゴ（クリックなし）</option><option value="text">文字（クリックなし）</option><option value="decoration">装飾画像（クリックなし）</option><option value="button">ボタン（動作あり）</option></select></label>
+            <label class="span2">表示方式
+              <select id="titleVisualMode">
+                <option value="text">テキスト / 標準表示</option>
+                <option value="image">画像表示</option>
+              </select>
+            </label>
+            <label class="span2 title-field-text">表示文字<input id="titleText" type="text"></label>
+            <div class="span2 title-image-fields">
+              <div class="image-state-grid">
+                <div class="image-state-card">
+                  <span>通常画像</span>
+                  <img id="titleNormalThumb" class="asset-thumb" alt="通常画像のサムネイル" hidden>
+                  <span id="titleNormalImageName" class="image-file-name">未設定</span>
+                  <small id="titleNormalMeta"></small>
+                  <label class="file-btn compact-file">画像を選択／交換<input id="titleNormalImageInput" type="file" accept="image/png,image/jpeg,image/webp"></label>
+                  <button id="titlePickNormal" type="button" class="tiny-soft">読み込み済み素材</button>
+                  <button id="titleClearNormalImage" type="button" class="tiny-soft">解除</button>
+                </div>
+                <div class="image-state-card">
+                  <span>ホバー画像</span>
+                  <img id="titleHoverThumb" class="asset-thumb" alt="ホバー画像のサムネイル" hidden>
+                  <span id="titleHoverImageName" class="image-file-name">未設定</span>
+                  <small id="titleHoverMeta"></small>
+                  <label class="file-btn compact-file">画像を選択／交換<input id="titleHoverImageInput" type="file" accept="image/png,image/jpeg,image/webp"></label>
+                  <button id="titlePickHover" type="button" class="tiny-soft">読み込み済み素材</button>
+                  <button id="titleClearHoverImage" type="button" class="tiny-soft">解除</button>
+                </div>
+              </div>
+              <p id="titleImageStatus" class="small-note"></p>
+              <button id="titleNativeSize" type="button" class="soft-btn">通常画像の原寸にする</button>
+              <label>枠内の画像表示<select id="titleFit"><option value="contain">全体を収める</option><option value="cover">枠を埋める（切り抜き）</option><option value="stretch">枠へ引き伸ばす</option></select></label>
+            </div>
+            <label>X<input id="titleX" type="number"></label>
+            <label>Y<input id="titleY" type="number"></label>
+            <label>幅<input id="titleW" type="number"></label>
+            <label>高さ<input id="titleH" type="number"></label>
+            <label class="span2"><input id="titleKeepAspect" type="checkbox"> 表示枠の縦横比を固定（リサイズ中はShiftで切替）</label>
+            <label class="title-field-text">文字サイズ<input id="titleFontSize" type="number" min="8"></label>
+            <label class="title-field-text">文字色<input id="titleColor" type="color" value="#ffffff"></label>
+            <label class="span2 title-field-button">動作
+              <select id="titleAction">
+                <option value="jump">シナリオへジャンプ</option>
+                <option value="config">CONFIG：設定シナリオへ</option>
+                <option value="load">ロード画面</option>
+                <option value="menu">メニュー画面（CONFIGとは別）</option>
+                <option value="log">バックログ</option>
+                <option value="web">Webを開く</option>
+              </select>
+            </label>
+            <label class="span2 title-field-jump">シナリオ storage<input id="titleStorage" type="text" placeholder="main.ks（空欄は現在のシナリオ）"></label>
+            <label class="span2 title-field-target"><span id="titleTargetLabel">ラベル target</span><input id="titleTarget" type="text" placeholder="*start"></label>
+            <p id="titleActionHelp" class="span2 small-note"></p>
+          </div>
+          <div class="preset-grid">
+            <button data-title-align="left">左寄せ</button>
+            <button data-title-align="center">中央</button>
+            <button data-title-align="right">右寄せ</button>
+            <button data-title-align="top">上揃え</button>
+            <button data-title-align="middle">縦中央</button>
+            <button data-title-align="bottom">下揃え</button>
+            <button data-title-distribute="x">横に等間隔</button><button data-title-distribute="y">縦に等間隔</button>
+          </div>
+          <div class="inline-actions top-gap">
+            <button id="titleDuplicate" class="soft-btn grow">複製</button>
+            <button id="titleDelete" class="danger-soft grow">削除</button>
+          </div>
+          <div class="inline-actions top-gap"><button id="titleBack" class="soft-btn">最背面へ</button><button id="titleFront" class="soft-btn">最前面へ</button></div>
+        </div>
+      </section>
+
+      <section class="panel preview-panel">
+        <div class="preview-head">
+          <div><strong>タイトル画面プレビュー</strong><span class="muted">要素をドラッグして配置</span></div>
+          <div id="titleScaleReadout" class="badge"></div>
+        </div>
+        <label class="title-preview-control">状態の確認<select id="titlePreviewState"><option value="auto">マウスに連動</option><option value="normal">通常のみ</option><option value="hover">ホバーを確認</option></select></label>
+        <div class="stage-wrap">
+          <div id="titleStage" class="game-stage checker ui-stage"></div>
+        </div>
+        <div class="generated-area">
+          <div class="section-title row-between"><span>生成コード</span><button class="copy-button" data-copy="#titleCode">📋 コピー</button></div>
+          <p class="export-warning">実機未検証の骨組みです。エラーのある要素は出力せず、残りの要素のみ出力します。文字のLOAD/MENU、装飾ホバー、Web動作は未対応。CONFIG用のシナリオは利用者側で用意します。ゲーム用素材同梱・退出後のcleanupは未実装です。</p>
+          <details id="titleValidation"><summary id="titleValidationSummary">出力前検証</summary><ul id="titleValidationList"></ul></details>
+          <pre id="titleCode" class="codebox"></pre>
+          <div class="note">背景・画像・文字・ボタンをティラノスクリプト用の骨組みに変換します。画像ファイル名は実プロジェクトへコピーした名前に合わせて調整してください。</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <main id="extraMode" class="mode-view hidden">
+    <div class="ui-builder-page">
+      <section class="panel ui-left">
+        <div class="page-head compact">
+          <div><h1>🖼 CG・おまけ画面ビルダー</h1><p>ギャラリーや回想画面をテンプレから作成。</p></div>
+        </div>
+
+        <div class="control-section">
+          <div class="section-title">テンプレ</div>
+          <div class="template-grid">
+            <button data-extra-template="cg4">CG 4列</button>
+            <button data-extra-template="cg3">CG 3列</button>
+            <button data-extra-template="replay">回想リスト</button>
+            <button data-extra-template="character">キャラ紹介</button>
+            <button data-extra-template="extraMenu">おまけメニュー</button>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <div class="section-title">画面</div>
+          <div class="two-col">
+            <label>幅<input id="extraGameW" type="number" min="320" value="1280"></label>
+            <label>高さ<input id="extraGameH" type="number" min="240" value="720"></label>
+          </div>
+          <label class="file-btn">🖼 背景画像<input id="extraBgInput" type="file" accept="image/*"></label>
+          <button id="extraClearBg" class="soft-btn">背景を外す</button>
+        </div>
+
+        <div class="control-section">
+          <div class="section-title row-between"><span>ギャラリー項目</span><button id="extraAddItem" class="mini-primary">＋項目</button></div>
+          <div id="extraItemList" class="choice-list"></div>
+        </div>
+
+        <div class="control-section" id="extraInspector">
+          <div class="section-title">選択中の項目</div>
+          <div class="form-grid">
+            <label class="span2">表示名<input id="extraLabel" type="text"></label>
+            <label class="span2">サムネ画像
+              <span class="file-btn compact-file">画像を選択<input id="extraThumbInput" type="file" accept="image/*"></span>
+            </label>
+            <label>X<input id="extraX" type="number"></label>
+            <label>Y<input id="extraY" type="number"></label>
+            <label>幅<input id="extraW" type="number"></label>
+            <label>高さ<input id="extraH" type="number"></label>
+            <label class="span2">開放条件<input id="extraCond" type="text" placeholder="例：f.cg_01 == true"></label>
+            <label class="span2">ジャンプ先<input id="extraTarget" type="text" placeholder="例：*cg_01"></label>
+            <label>未開放表示
+              <select id="extraLockedStyle">
+                <option value="dark">暗くする</option>
+                <option value="question">????</option>
+                <option value="lock">🔒</option>
+                <option value="none">表示しない</option>
+              </select>
+            </label>
+            <label>ページ<input id="extraPage" type="number" min="1" value="1"></label>
+          </div>
+          <div class="preset-grid">
+            <button data-extra-align="left">左寄せ</button>
+            <button data-extra-align="center">中央</button>
+            <button data-extra-align="right">右寄せ</button>
+            <button data-extra-align="bottom">下揃え</button>
+          </div>
+          <div class="inline-actions top-gap">
+            <button id="extraDuplicate" class="soft-btn grow">複製</button>
+            <button id="extraDelete" class="danger-soft grow">削除</button>
+          </div>
+          <div class="inline-actions top-gap"><button id="extraBack" class="soft-btn">最背面へ</button><button id="extraFront" class="soft-btn">最前面へ</button></div>
+        </div>
+
+        <div class="control-section">
+          <div class="section-title">一括配置</div>
+          <div class="two-col">
+            <label>列数<input id="extraCols" type="number" min="1" max="8" value="4"></label>
+            <label>間隔<input id="extraGap" type="number" min="0" value="20"></label>
+          </div>
+          <button id="extraArrangeGrid" class="soft-btn full">グリッドに整列</button>
+        </div>
+      </section>
+
+      <section class="panel preview-panel">
+        <div class="preview-head">
+          <div><strong>CG・おまけ画面プレビュー</strong><span class="muted">項目をドラッグして配置</span></div>
+          <div id="extraScaleReadout" class="badge"></div>
+        </div>
+        <div class="stage-wrap">
+          <div id="extraStage" class="game-stage checker ui-stage"></div>
+        </div>
+        <div class="generated-area">
+          <div class="section-title row-between"><span>生成コード</span><button class="copy-button" data-copy="#extraCode">📋 コピー</button></div>
+          <p class="export-warning">プレビューと出力は未完成です。ページ番号は保持のみで全項目を表示します。ロック外観は条件式と連動しません。CG拡大・回想本編・音楽再生・戻る処理は未実装です。</p>
+          <pre id="extraCode" class="codebox"></pre>
+          <div class="note">開放条件は <code>cond</code> 用の式として出力します。実際のCG登録・回想処理はプロジェクト側のフラグ設計に合わせてください。</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+</div>
+
+<div id="toast" class="toast" role="status"></div>
+</body>
+</html>
